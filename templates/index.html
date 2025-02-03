@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laptop Recommendation System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ece9e6, #ffffff);
+            color: #333;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background: #007BFF;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .form-container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .results-item {
+            padding: 20px;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .results-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .results-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-right: 20px;
+            border-radius: 8px;
+        }
+        .results-item h3 {
+            margin: 0 0 10px;
+            font-size: 1.5rem;
+            color: #007BFF;
+        }
+        .results-item p {
+            margin: 5px 0;
+            line-height: 1.5;
+            color: #555;
+        }
+        .results-item .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 10px;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Laptop Recommendation System</h1>
+    </header>
+    <div class="form-container">
+        <div class="form-group">
+            <label for="type">Jenis Laptop</label>
+            <select id="type">
+                <option value="">Pilih jenis laptop</option>
+                <option value="kuliah">Kuliah</option>
+                <option value="gaming">Gaming</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="brand">Brand</label>
+            <select id="brand">
+                <option value="">Pilih brand</option>
+                <option value="Intel">Intel</option>
+                <option value="AMD">AMD</option>
+                <option value="Apple">Apple</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="processor">Processor</label>
+            <select id="processor">
+                <option value="">Pilih processor</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="ram">RAM (GB)</label>
+            <input type="number" id="ram" min="0" max="128" step="1">
+        </div>
+        <div class="form-group">
+            <label for="storage">Storage (GB)</label>
+            <input type="number" id="storage" min="0" max="8192" step="1">
+        </div>
+        <div class="form-group">
+            <label for="min-price">Harga Minimum</label>
+            <input type="number" id="min-price" min="0">
+        </div>
+        <div class="form-group">
+            <label for="max-price">Harga Maksimum</label>
+            <input type="number" id="max-price" min="0">
+        </div>
+        <div class="form-group" id="vga-group" style="display: none;">
+            <label for="vga">VGA</label>
+            <select id="vga">
+                <option value="">Pilih VGA</option>
+                <option value="Nvidia GTX 1659">Nvidia GTX 1650</option>
+                <option value="Nvidia RTX 3060">Nvidia RTX 3060</option>
+                <option value="Nvidia RTX 3070">Nvidia RTX 3070</option>
+                <option value="Nvidia RTX 3080">Nvidia RTX 3080</option>
+                <option value="AMD Radeon RX 6700 XT">AMD Radeon RX 6700 XT</option>
+                <option value="AMD Radeon RX 6800 XT">AMD Radeon RX 6800 XT</option>
+            </select>
+        </div>
+        <button id="search">Cari</button>
+        <button id="reset">Hapus</button>
+    </div>
+
+    <div class="results" id="results">
+        <!-- Search results will be displayed here -->
+    </div>
+
+    <script>
+        const brandSelect = document.getElementById("brand");
+        const processorSelect = document.getElementById("processor");
+        const typeSelect = document.getElementById("type");
+        const vgaGroup = document.getElementById("vga-group");
+
+        typeSelect.addEventListener("change", () => {
+            vgaGroup.style.display = typeSelect.value === "gaming" ? "block" : "none";
+        });
+
+        brandSelect.addEventListener("change", async () => {
+            const selectedBrand = brandSelect.value;
+            processorSelect.innerHTML = '<option value="">Pilih processor</option>';
+            if (selectedBrand) {
+                const response = await fetch(`/get_processors/${selectedBrand}`);
+                const processors = await response.json();
+                processorSelect.innerHTML += processors.map(option => `<option value="${option}">${option}</option>`).join("");
+            }
+        });
+
+        document.getElementById("search").addEventListener("click", async () => {
+            const data = {
+                type: typeSelect.value,
+                brand: brandSelect.value,
+                processor: processorSelect.value,
+                ram: parseInt(document.getElementById("ram").value) || 0,
+                storage: parseInt(document.getElementById("storage").value) || 0,
+                minPrice: parseFloat(document.getElementById("min-price").value) || 0,
+                maxPrice: parseFloat(document.getElementById("max-price").value) || Infinity,
+                vga: document.getElementById("vga").value
+            };
+
+            const response = await fetch("/search", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const results = await response.json();
+            const resultsContainer = document.getElementById("results");
+            if (results.error) {
+                resultsContainer.innerHTML = `<div class="results-item">Error: ${results.error}</div>`;
+            } else {
+                resultsContainer.innerHTML = results.map(item => `
+                    <div class="results-item">
+                        <img src="${item.image_url}" alt="${item.name}">
+                        <div>
+                            <h3>${item.name}</h3>
+                            <p><strong>Brand:</strong> ${item.brand}</p>
+                            <p><strong>Processor:</strong> ${item.processor}</p>
+                            <p><strong>RAM:</strong> ${item.ram} GB</p>
+                            <p><strong>Storage:</strong> ${item.storage} GB</p>
+                            ${item.vga ? `<p><strong>VGA:</strong> ${item.vga}</p>` : ""}
+                            <p class="price">Rp${item.price.toLocaleString()}</p>
+                        </div>
+                    </div>
+                `).join("");
+            
+            }
+        });
+
+        document.getElementById("reset").addEventListener("click", () => {
+            document.querySelectorAll("input, select").forEach(el => el.value = "");
+            document.getElementById("results").innerHTML = "";
+            vgaGroup.style.display = "none";
+        });
+        document.getElementById("search").addEventListener("click", async () => {
+    const data = {
+        type: typeSelect.value,
+        brand: brandSelect.value,
+        processor: processorSelect.value,
+        ram: parseInt(document.getElementById("ram").value) || 0,
+        storage: parseInt(document.getElementById("storage").value) || 0,
+        minPrice: parseFloat(document.getElementById("min-price").value) || 0,
+        maxPrice: parseFloat(document.getElementById("max-price").value) || Infinity,
+        vga: document.getElementById("vga").value
+    };
+
+    const response = await fetch("/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const results = await response.json();
+    const resultsContainer = document.getElementById("results");
+    
+    if (results.error) {
+        resultsContainer.innerHTML = `<div class="results-item">Error: ${results.error}</div>`;
+    } else {
+        resultsContainer.innerHTML = results.map(item => `
+            <div class="results-item" onclick="window.location.href='/product/${encodeURIComponent(item.name)}';" style="cursor: pointer;">
+                <img src="${item.image_url || '/static/images/default.jpg'}" alt="${item.name}">
+                <div>
+                    <h3>${item.name}</h3>
+                    <p><strong>Brand:</strong> ${item.brand}</p>
+                    <p><strong>Processor:</strong> ${item.processor}</p>
+                    <p><strong>RAM:</strong> ${item.ram} GB</p>
+                    <p><strong>Storage:</strong> ${item.storage} GB</p>
+                    ${item.vga ? `<p><strong>VGA:</strong> ${item.vga}</p>` : ""}
+                    <p class="price">Rp${item.price.toLocaleString()}</p>
+                </div>
+            </div>
+        `).join("");
+    }
+});
+    </script>
+</body>
+</html>
